@@ -328,7 +328,7 @@ plt.xlabel('Predicted')
 plt.title('Confusion Matrix')
 plt.show()
 
-with open('cifar-10-python/cifar_test_nolabels.pkl', 'rb') as file:
+with open('cifar_test_nolabels.pkl', 'rb') as file:
     test_data = pickle.load(file)
 
 data = test_data[b'data']
