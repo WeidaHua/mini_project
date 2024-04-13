@@ -148,7 +148,7 @@ savename='project.pth'
 train_losses, val_losses, train_accuracies, val_accuracies = [], [], [], []
 lr_rates = []  
 
-for epoch in range(250):
+for epoch in range(200):
     if counter / 10 == 1:
         counter = 0
         Lr = Lr * 0.45
