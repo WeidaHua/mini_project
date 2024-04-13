@@ -1,5 +1,4 @@
 import torch
-import os
 import torchvision
 import torchvision.transforms as transforms
 import torch.optim as optim
