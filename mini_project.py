@@ -1,4 +1,5 @@
 import torch
+import os
 import torchvision
 import torchvision.transforms as transforms
 import torch.optim as optim
@@ -143,8 +144,8 @@ criterion = nn.CrossEntropyLoss()
 counter=0
 best_acc = 0
 Lr=0.01
+savename = 'project.pth'
 
-savename='project.pth'
 train_losses, val_losses, train_accuracies, val_accuracies = [], [], [], []
 lr_rates = []  
 #In the report we set the epoch number 300. As we think it's too big to verify, we set it 200 right now.
