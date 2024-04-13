@@ -18,7 +18,7 @@ import seaborn as sns
 
 torch.cuda.empty_cache()
 
-transform_train = transforms.Compose([
+transform_train = transforms.Compose([                #Data Preprocessing
     transforms.RandomCrop(32, padding=4),
     transforms.RandomHorizontalFlip(),
     transforms.RandomVerticalFlip(p=0.5),
@@ -40,7 +40,7 @@ num_train = len(trainset)
 num_val = int(num_train * 0.10)  
 num_train -= num_val  
 
-train_dataset, val_dataset = random_split(trainset, [num_train, num_val])
+train_dataset, val_dataset = random_split(trainset, [num_train, num_val])            #Data Loading
 trainloader = torch.utils.data.DataLoader(train_dataset, batch_size=128,
                                           shuffle=True, num_workers=2)
 valloader = torch.utils.data.DataLoader(val_dataset, batch_size=128, shuffle=False, num_workers=2)                                          
@@ -55,14 +55,14 @@ classes = ('plane', 'car', 'bird', 'cat',
 
 
 
-dataiter = iter(trainloader)
+dataiter = iter(trainloader)            #partly show the dataset cifar-10
 images, labels = next(dataiter)
 plt.imshow(torchvision.utils.make_grid(images).permute(1, 2, 0))
 plt.show()
 print(' '.join('%5s' % classes[labels[j]] for j in range(32)))
 
 
-class BasicBlock(nn.Module):
+class BasicBlock(nn.Module):            #model definition(residual block)
     expansion = 1
 
     def __init__(self, in_channels, out_channels, stride=1, kernel_size=3,drop_prob=0.5):
@@ -93,7 +93,7 @@ class BasicBlock(nn.Module):
         return out
 
 
-class ResNet18(nn.Module):
+class ResNet18(nn.Module):                #model definition(resnet)
     def __init__(self, block, num_blocks, num_classes=10,drop_prob=0.5):
         super(ResNet18, self).__init__()
         self.in_channels = 64
@@ -133,7 +133,7 @@ class ResNet18(nn.Module):
 def resnet18():
     return ResNet18(BasicBlock, [3, 3, 2, 1])
     
-device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")    
 net = resnet18()
 net.linear = nn.Linear(256, 10)
 net.to(device)
@@ -147,9 +147,9 @@ Lr=0.01
 savename='project.pth'
 train_losses, val_losses, train_accuracies, val_accuracies = [], [], [], []
 lr_rates = []  
-
-for epoch in range(200):
-    if counter / 10 == 1:
+#In the report we set the epoch number 300. As we think it's too big to verify, we set it 200 right now.
+for epoch in range(200):            #Training Loop and Checkpointing
+    if counter / 10 == 1:            #The main training loop includes checkpointing which saves the model state when a new minimum validation loss is observed. 
         counter = 0
         Lr = Lr * 0.45
         
@@ -181,7 +181,7 @@ for epoch in range(200):
         
     print(f'Epoch {epoch + 1} complete. Average loss: {avg_train_loss:.6f}')
     
-    net.eval()
+    net.eval()                #validation part
     val_loss = 0.0
     total_val=0
     correct_val=0
@@ -205,14 +205,14 @@ for epoch in range(200):
     
     if val_loss < valid_loss_min: 
         best_acc = val_acc
-        best_model_wts = copy.deepcopy(net.state_dict())
+        best_model_wts = copy.deepcopy(net.state_dict())        # Copy the best model weights
         state = {
             'state_dict': net.state_dict(),
             'best_acc': best_acc,
             'optimizer': optimizer.state_dict(),
              }
                     
-        torch.save(state, savename)
+        torch.save(state, savename)        # Save the best model
         print("the best model has been saved, the accuracy is {:.2f}%，filename：{}".format(best_acc * 100, savename))
         valid_loss_min = val_loss
         counter = 0
@@ -222,7 +222,7 @@ for epoch in range(200):
 
 print('Finished Training')
 
-plt.figure(figsize=(5, 3))
+plt.figure(figsize=(5, 3))            #This plot visualizes how the training and validation losses evolve over each epoch
 plt.plot(train_losses, label='Training Loss')
 plt.plot(val_losses, label='Validation Loss')
 plt.xlabel('Epoch Number')
@@ -232,7 +232,7 @@ plt.legend()
 plt.savefig('training_validation_loss.png')
 plt.show()
 
-plt.figure(figsize=(6, 3))
+plt.figure(figsize=(6, 3))            #This set of subplots shows both the loss and accuracy metrics side by side for both training and validation sets
 plt.subplot(1, 2, 1)
 plt.plot(train_losses, label='Training Loss')
 plt.plot(val_losses, label='Validation Loss')
@@ -246,7 +246,7 @@ plt.legend()
 plt.title('Accuracy Over Epochs')
 plt.show()
 
-plt.figure(figsize=(3, 2))
+plt.figure(figsize=(3, 2))        #This plot displays how the learning rate changes over the course of training. 
 plt.plot(lr_rates)
 plt.xlabel('Epoch')
 plt.ylabel('Learning Rate')
@@ -257,7 +257,7 @@ net.eval()
 correct = 0
 total = 0
 
-with torch.no_grad():
+with torch.no_grad():            #Test the model by test batch of cifar-10
     for data in testloader:
         images, labels = data
         images, labels = images.cuda(), labels.cuda()
@@ -278,7 +278,7 @@ indices = random.sample(range(len(images)), 3)
 images_subset = images[indices]
 labels_subset = labels[indices]
 
-# Perform predictions
+# Perform predictions by the trained model
 with torch.no_grad():
     outputs = net(images_subset)
 
@@ -307,7 +307,7 @@ for i, (image, label) in enumerate(zip(images_subset, labels_subset)):
 plt.tight_layout()
 plt.show()
 
-true_labels = []
+true_labels = []            #draw the confusion matrix
 pred_labels = []
 
 with torch.no_grad():
@@ -328,7 +328,7 @@ plt.xlabel('Predicted')
 plt.title('Confusion Matrix')
 plt.show()
 
-with open('cifar_test_nolabels.pkl', 'rb') as file:
+with open('cifar_test_nolabels.pkl', 'rb') as file:        #use the model in the nolabel file to generate csv file.
     test_data = pickle.load(file)
 
 data = test_data[b'data']
