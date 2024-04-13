@@ -34,7 +34,7 @@ transform_test = transforms.Compose([
 ])
 
 
-trainset = torchvision.datasets.CIFAR10(root='./cifar-10-python', train=True,
+trainset = torchvision.datasets.CIFAR10(root='./', train=True,
                                         download=False, transform=transform_train)
 num_train = len(trainset)
 num_val = int(num_train * 0.10)  
@@ -45,7 +45,7 @@ trainloader = torch.utils.data.DataLoader(train_dataset, batch_size=128,
                                           shuffle=True, num_workers=2)
 valloader = torch.utils.data.DataLoader(val_dataset, batch_size=128, shuffle=False, num_workers=2)                                          
 
-testset = torchvision.datasets.CIFAR10(root='./cifar-10-python', train=False,
+testset = torchvision.datasets.CIFAR10(root='./', train=False,
                                         download=False, transform=transform_test)
 testloader = torch.utils.data.DataLoader(testset, batch_size=64,
                                          shuffle=False, num_workers=2)
